@@ -6,6 +6,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.sql.Connection;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.*;
@@ -13,13 +14,14 @@ import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
+
     public static void main(String[] args) {
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDetail job = newJob(Rabbit.class).build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(intervalTime())
+                    .withIntervalInSeconds(Integer.parseInt(getProperties().getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -31,16 +33,16 @@ public class AlertRabbit {
         }
     }
 
-    public static int intervalTime() {
-        int rsl;
+
+
+    public static Properties getProperties() {
+        Properties config = new Properties();
         try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            Properties cnfg = new Properties();
-            cnfg.load(in);
-            rsl = Integer.parseInt(cnfg.getProperty("rabbit.interval"));
+            config.load(in);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-        return rsl;
+        return config;
     }
 
     public static class Rabbit implements Job {
