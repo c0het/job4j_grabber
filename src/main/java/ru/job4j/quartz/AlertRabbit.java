@@ -19,16 +19,16 @@ import static org.quartz.SimpleScheduleBuilder.*;
 public class AlertRabbit {
 
     public static void main(String[] args) {
+        Properties properties = getProperties();
         try (Connection connect = DriverManager.getConnection(
-                AlertRabbit.getProperties().getProperty("url"),
-                AlertRabbit.getProperties().getProperty("username"),
-                AlertRabbit.getProperties().getProperty("password")
+                properties.getProperty("url"),
+                properties.getProperty("username"),
+                properties.getProperty("password")
         )) {
-            List<Long> store = new ArrayList<>();
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            JobDataMap data =  new JobDataMap(connect.getTypeMap());
-            data.put("store", store);
+            JobDataMap data =  new JobDataMap();
+            data.put("store", connect);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(data)
                     .build();
@@ -42,12 +42,7 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-            PreparedStatement preparedStatement =
-                    connect.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)");
-            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-            preparedStatement.execute();
             connect.close();
-            System.out.println(store);
         } catch (Exception se) {
             se.printStackTrace();
         }
@@ -69,6 +64,16 @@ public class AlertRabbit {
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
+            try {
+                Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("store");
+                PreparedStatement preparedStatement =
+                        cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)");
+                preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.execute();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("Rabbit runs here ...");
         }
     }
