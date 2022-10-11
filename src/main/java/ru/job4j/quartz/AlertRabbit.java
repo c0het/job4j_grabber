@@ -33,7 +33,7 @@ public class AlertRabbit {
                     .usingJobData(data)
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(5)
+                    .withIntervalInSeconds(Integer.parseInt(properties.getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -42,7 +42,6 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-            connect.close();
         } catch (Exception se) {
             se.printStackTrace();
         }
@@ -64,10 +63,9 @@ public class AlertRabbit {
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
-            try {
-                Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("store");
-                PreparedStatement preparedStatement =
-                        cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)");
+            Connection cn = (Connection) context.getJobDetail().getJobDataMap().get("store");
+            try (PreparedStatement preparedStatement =
+                     cn.prepareStatement("INSERT INTO rabbit(created_date) VALUES (?)")) {
                 preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                 preparedStatement.execute();
 
