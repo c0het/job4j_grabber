@@ -5,11 +5,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.quartz.utils.DateTimeParser;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class HabrCareerParse {
+public class HabrCareerParse implements DateTimeParser {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
@@ -22,11 +25,18 @@ public class HabrCareerParse {
         rows.forEach(row -> {
             Element titleElement = row.select(".vacancy-card__title").first();
             Element linkElement = titleElement.child(0);
-            Element dateElement = row.select(".basic-date").first();
+            Element dateElement = row.select(".vacancy-card__date").first();
             String vacancyName = titleElement.text();
+            String date = dateElement.child(0).attr("datetime");
             String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-            String date = dateElement.text();
             System.out.printf("%s %s %s%n", vacancyName, link, date);
         });
+    }
+
+
+    @Override
+    public LocalDateTime parse(String parse) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        return LocalDateTime.parse(parse, formatter);
     }
 }
