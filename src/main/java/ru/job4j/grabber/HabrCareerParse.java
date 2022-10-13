@@ -6,12 +6,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.utils.DateTimeParser;
+import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class HabrCareerParse implements DateTimeParser {
+public class HabrCareerParse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
@@ -29,14 +30,9 @@ public class HabrCareerParse implements DateTimeParser {
                 String vacancyName = titleElement.text();
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
                 System.out.printf("%s %s %s%n", vacancyName, link,
-                        new HabrCareerParse().parse(dateElement.child(0).attr("datetime")));
+                        new HabrCareerDateTimeParser().parse(dateElement.child(0).attr("datetime")));
             });
         }
     }
 
-
-    @Override
-    public LocalDateTime parse(String parse) {
-        return LocalDateTime.parse(parse, DateTimeFormatter.ISO_DATE_TIME);
-    }
 }
