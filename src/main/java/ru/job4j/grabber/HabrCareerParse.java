@@ -29,10 +29,23 @@ public class HabrCareerParse {
                 Element dateElement = row.select(".vacancy-card__date").first();
                 String vacancyName = titleElement.text();
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-                System.out.printf("%s %s %s%n", vacancyName, link,
-                        new HabrCareerDateTimeParser().parse(dateElement.child(0).attr("datetime")));
+                try {
+                    System.out.printf("%s %s %s %s%n", vacancyName, link,
+                            new HabrCareerDateTimeParser().parse(dateElement.child(0).attr("datetime")),
+                            retrieveDescription(link));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
             });
         }
     }
 
+    private static String retrieveDescription(String link) throws IOException {
+            Connection connection = Jsoup.connect(link);
+            Document document = connection.get();
+            Elements rows = document.select(".collapsible-description__content");
+            return rows.select(".style-ugc").text();
+
+    }
 }
