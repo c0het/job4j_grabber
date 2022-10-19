@@ -63,11 +63,8 @@ public class HabrCareerParse implements Parse {
             }
             Elements rows = document.select(".vacancy-card__inner");
             rows.forEach(row -> {
-                Element titleElement = row.select(".vacancy-card__title").first();
-                Element linkElement = titleElement.child(0);
-                Element dateElement = row.select(".vacancy-card__date").first();
                 try {
-                    rsl.add(post(titleElement, linkElement, dateElement));
+                    rsl.add(getPost(row));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -76,10 +73,12 @@ public class HabrCareerParse implements Parse {
         return rsl;
     }
 
-    private Post post(Element title, Element link, Element date) throws IOException {
-        String vacancyLink = String.format("%s%s", SOURCE_LINK, link.attr("href"));
-        return new Post(title.text(), vacancyLink, retrieveDescription(vacancyLink),
-                this.dateTimeParser.parse(date.child(0).attr("datetime")));
+    private Post getPost(Element element) throws IOException {
+        Element vacancyName = element.select(".vacancy-card__title").first();
+        String vacancyLink = String.format("%s%s", SOURCE_LINK, vacancyName.child(0).attr("href"));
+        return new Post(vacancyName.text(), vacancyLink, retrieveDescription(vacancyLink),
+                this.dateTimeParser.parse(element.select(".vacancy-card__date").
+                        first().child(0).attr("datetime")));
     }
 
 
