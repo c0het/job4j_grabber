@@ -6,8 +6,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class PsqlStore implements Store, AutoCloseable {
+
+    private static final Logger LOG = LogManager.getLogManager().getLogger(PsqlStore.class.getName());
 
     private Connection cnn;
 
@@ -28,14 +32,15 @@ public class PsqlStore implements Store, AutoCloseable {
     @Override
     public void save(Post post) {
         try (PreparedStatement preparedStatement =
-                cnn.prepareStatement("INSERT INTO post(name,text,link,created) VALUES (?,?,?,?)")) {
+                cnn.prepareStatement("INSERT INTO post(name,text,link,created) VALUES (?,?,?,?)"
+                        + "on conflict (link) do nothing")) {
             preparedStatement.setString(1, post.getTitle());
             preparedStatement.setString(2, post.getDescription());
             preparedStatement.setString(3, post.getLink());
             preparedStatement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             preparedStatement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            LOG.config(String.valueOf(new RuntimeException(e)));
         }
     }
 
@@ -48,7 +53,7 @@ public class PsqlStore implements Store, AutoCloseable {
                 rsl.add(createNewPostFromBD(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            LOG.config(String.valueOf(new RuntimeException(e)));
         }
         return rsl;
     }
@@ -64,7 +69,7 @@ public class PsqlStore implements Store, AutoCloseable {
                 rsl = createNewPostFromBD(resultSet);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            LOG.config(String.valueOf(new RuntimeException(e)));
         }
         return rsl;
     }

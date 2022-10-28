@@ -35,17 +35,21 @@ public class HabrCareerParse implements Parse {
         HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
         List<Post> listPost = habrCareerParse.list(PAGE_LINK);
         Properties cfg = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("post.properties")) {
+        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("app.properties"); ) {
             cfg.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        PsqlStore psqlStore = new PsqlStore(cfg);
-        for (Post post : listPost) {
-            psqlStore.save(post);
+        try (PsqlStore psqlStore = new PsqlStore(cfg)) {
+            for (Post post : listPost) {
+                psqlStore.save(post);
+            }
+            System.out.println(psqlStore.getAll() + "/n");
+            System.out.println(psqlStore.findById(10));
+        }  catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        System.out.println(psqlStore.getAll() + "/n");
-        System.out.println(psqlStore.findById(10));
+
     }
 
     private static String retrieveDescription(String link) {
