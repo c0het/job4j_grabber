@@ -17,9 +17,9 @@ import java.util.Properties;
 
 public class HabrCareerParse implements Parse {
 
-    private static final int PAGES = 5;
+    private static final int PAGES = 1;
 
-    private static final String SOURCE_LINK = "https://career.habr.com";
+    public static final String SOURCE_LINK = "https://career.habr.com";
 
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer?page=", SOURCE_LINK);
 
@@ -28,8 +28,6 @@ public class HabrCareerParse implements Parse {
     public HabrCareerParse(DateTimeParser dateTimeParser) {
         this.dateTimeParser = dateTimeParser;
     }
-
-
 
     public static void main(String[] args) {
         HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());

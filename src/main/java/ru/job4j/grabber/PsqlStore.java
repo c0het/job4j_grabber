@@ -40,7 +40,7 @@ public class PsqlStore implements Store, AutoCloseable {
             preparedStatement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             preparedStatement.execute();
         } catch (SQLException e) {
-            LOG.config(String.valueOf(new RuntimeException(e)));
+            LOG.info(e.toString());
         }
     }
 
@@ -53,7 +53,7 @@ public class PsqlStore implements Store, AutoCloseable {
                 rsl.add(createNewPostFromBD(resultSet));
             }
         } catch (SQLException e) {
-            LOG.config(String.valueOf(new RuntimeException(e)));
+            LOG.info(String.valueOf(e));
         }
         return rsl;
     }
@@ -69,7 +69,7 @@ public class PsqlStore implements Store, AutoCloseable {
                 rsl = createNewPostFromBD(resultSet);
             }
         } catch (SQLException e) {
-            LOG.config(String.valueOf(new RuntimeException(e)));
+            LOG.info(String.valueOf((e)));
         }
         return rsl;
     }
