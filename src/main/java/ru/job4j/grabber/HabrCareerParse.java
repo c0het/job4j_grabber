@@ -17,7 +17,7 @@ import java.util.Properties;
 
 public class HabrCareerParse implements Parse {
 
-    private static final int PAGES = 1;
+    private static final int PAGES = 5;
 
     public static final String SOURCE_LINK = "https://career.habr.com";
 
@@ -33,7 +33,7 @@ public class HabrCareerParse implements Parse {
         HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
         List<Post> listPost = habrCareerParse.list(PAGE_LINK);
         Properties cfg = new Properties();
-        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("app.properties"); ) {
+        try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("app.properties")) {
             cfg.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -52,7 +52,7 @@ public class HabrCareerParse implements Parse {
 
     private static String retrieveDescription(String link) {
             Connection connection = Jsoup.connect(link);
-        Document document = null;
+        Document document;
         try {
             document = connection.get();
         } catch (IOException e) {

@@ -1,7 +1,5 @@
 package ru.job4j.grabber;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +11,7 @@ public class PsqlStore implements Store, AutoCloseable {
 
     private static final Logger LOG = LogManager.getLogManager().getLogger(PsqlStore.class.getName());
 
-    private Connection cnn;
+    private final Connection cnn;
 
     public PsqlStore(Properties cfg) {
         try {
@@ -31,7 +29,7 @@ public class PsqlStore implements Store, AutoCloseable {
 
     @Override
     public void save(Post post) {
-        try (PreparedStatement preparedStatement =
+        try (PreparedStatement preparedStatement  =
                 cnn.prepareStatement("INSERT INTO post(name,text,link,created) VALUES (?,?,?,?)"
                         + "on conflict (link) do nothing")) {
             preparedStatement.setString(1, post.getTitle());
