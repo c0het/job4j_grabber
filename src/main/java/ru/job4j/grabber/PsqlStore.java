@@ -39,6 +39,11 @@ public class PsqlStore implements Store, AutoCloseable {
             preparedStatement.setString(3, post.getLink());
             preparedStatement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             preparedStatement.execute();
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    post.setId(resultSet.getInt("id"));
+                }
+            }
         } catch (SQLException e) {
             LOG.info(e.toString());
         }
@@ -82,8 +87,8 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     public Post createNewPostFromBD(ResultSet rsl) throws SQLException {
-        return new Post(rsl.getInt(1), rsl.getString(2), rsl.getString(3),
-                rsl.getString(4), rsl.getTimestamp(5).toLocalDateTime());
+        return new Post(rsl.getInt("id"), rsl.getString("name"), rsl.getString("text"),
+                rsl.getString("link"), rsl.getTimestamp("created").toLocalDateTime());
     }
 }
 

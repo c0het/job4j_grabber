@@ -17,11 +17,7 @@ public class Grabber implements Grab {
     private final Properties cfg = new Properties();
 
     public Store store() {
-        try (PsqlStore store = new PsqlStore(cfg)) {
-            return store;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new PsqlStore(cfg);
     }
 
     public Scheduler scheduler() throws SchedulerException {
@@ -61,16 +57,10 @@ public class Grabber implements Grab {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
-            Grabber grabber = new Grabber();
             try {
-                grabber.cfg();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try (PsqlStore psqlStore = new PsqlStore(grabber.cfg)) {
                 List<Post> postList = parse.list(Parse.PAGE_LINK);
                 for (Post post : postList) {
-                    psqlStore.save(post);
+                    store.save(post);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
