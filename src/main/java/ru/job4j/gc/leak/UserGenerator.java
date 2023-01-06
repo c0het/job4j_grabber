@@ -12,13 +12,13 @@ public class UserGenerator implements Generate {
     public static final String PATH_PATRONS = "src/main/java/ru/job4j/gc/leak/files/patr";
 
     public static final String SEPARATOR = " ";
-    public static final Integer NEW_USERS = 1000;
+    public static final int NEW_USERS = 1000;
 
-    public static List<String> names;
-    public static List<String> surnames;
-    public static List<String> patrons;
-    private List<User> users = new ArrayList<>();
-    private Random random;
+    public List<String> names;
+    public List<String> surnames;
+    public List<String> patrons;
+    private final List<User> users = new ArrayList<>();
+    private final Random random;
 
     public UserGenerator(Random random) {
         this.random = random;
@@ -28,11 +28,13 @@ public class UserGenerator implements Generate {
     @Override
     public void generate() {
         users.clear();
+
         for (int i = 0; i < NEW_USERS; i++) {
-            users.add(new User(
-                    surnames.get(random.nextInt(surnames.size())) + SEPARATOR
-                            + names.get(random.nextInt(names.size())) + SEPARATOR
-                            + patrons.get(random.nextInt(patrons.size()))));
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(surnames.get(random.nextInt(surnames.size()))
+                    + names.get(random.nextInt(names.size()))
+                    + patrons.get(random.nextInt(patrons.size())));
+            users.add(new User(stringBuffer.toString()));
         }
     }
 
