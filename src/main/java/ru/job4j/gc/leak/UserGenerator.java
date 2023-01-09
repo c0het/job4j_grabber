@@ -31,9 +31,12 @@ public class UserGenerator implements Generate {
 
         for (int i = 0; i < NEW_USERS; i++) {
             StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append(surnames.get(random.nextInt(surnames.size()))
-                    + names.get(random.nextInt(names.size()))
-                    + patrons.get(random.nextInt(patrons.size())));
+
+            stringBuffer
+                    .append(surnames.get(random.nextInt(surnames.size())))
+                    .append(names.get(random.nextInt(names.size())))
+                    .append(patrons.get(random.nextInt(patrons.size())));
+
             users.add(new User(stringBuffer.toString()));
         }
     }
