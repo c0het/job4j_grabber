@@ -13,17 +13,12 @@ public abstract class AbstractCache<K, V> {
     }
 
     public V get(K key) {
-        V inCache = null;
-        for (K keys : cache.keySet()) {
-            if (keys.toString().contains(key.toString())) {
-                inCache = cache.getOrDefault(key, cache.get(keys)).get();
-                if (inCache == null) {
-                    cache.put(keys, new SoftReference<>(load(keys)));
-                    inCache = load(key);
-                }
-            }
+        V inCache = cache.getOrDefault(key,  new SoftReference<>(null)).get();
+        if (inCache == null) {
+            inCache = load(key);
+            put(key, inCache);
         }
-    return inCache;
+        return inCache;
     }
 
     protected abstract V load(K key);
